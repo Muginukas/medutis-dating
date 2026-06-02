@@ -25,6 +25,12 @@
     "plugins": [
       "expo-router",
       "expo-image-picker"
-    ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "5cc5c987-aa7f-4a77-bae1-e3e45bfb498d"
+      }
+    },
+    "owner": "medutis"
   }
 }
