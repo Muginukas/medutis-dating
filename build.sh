@@ -1,2 +1,3 @@
 #!/bin/bash
-EAS_SKIP_AUTO_FINGERPRINT=1 eas build --platform android --profile preview
+export EAS_SKIP_AUTO_FINGERPRINT=1
+eas build --platform android --profile preview --no-wait
