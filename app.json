@@ -24,7 +24,8 @@
     },
     "plugins": [
       "expo-router",
-      "expo-image-picker"
+      "expo-image-picker",
+      ["expo-notifications", { "icon": "./assets/icon.png", "color": "#FF6B9D" }]
     ],
     "extra": {
       "eas": {

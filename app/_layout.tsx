@@ -1,5 +1,6 @@
 import { Stack } from 'expo-router';
 import { AuthProvider, useAuth } from '../src/context/AuthContext';
+import { NotificationsProvider } from '../src/context/NotificationsContext';
 import { useRouter, useSegments } from 'expo-router';
 import { useEffect } from 'react';
 import { ActivityIndicator, View } from 'react-native';
@@ -38,8 +39,10 @@ function AuthGuard() {
 
 export default function RootLayout() {
   return (
-    <AuthProvider>
-      <AuthGuard />
-    </AuthProvider>
+    <NotificationsProvider>
+      <AuthProvider>
+        <AuthGuard />
+      </AuthProvider>
+    </NotificationsProvider>
   );
 }

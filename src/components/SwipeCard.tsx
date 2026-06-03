@@ -19,10 +19,11 @@ type Props = {
   profile: Profile;
   onLike: () => void;
   onPass: () => void;
+  onInfo?: () => void;
   isTop: boolean;
 };
 
-export default function SwipeCard({ profile, onLike, onPass, isTop }: Props) {
+export default function SwipeCard({ profile, onLike, onPass, onInfo, isTop }: Props) {
   const position = useRef(new Animated.ValueXY()).current;
   const [photoIndex, setPhotoIndex] = useState(0);
 
@@ -46,7 +47,9 @@ export default function SwipeCard({ profile, onLike, onPass, isTop }: Props) {
 
   const panResponder = useRef(
     PanResponder.create({
-      onStartShouldSetPanResponder: () => isTop,
+      onStartShouldSetPanResponder: () => false,
+      onMoveShouldSetPanResponder: (_, gesture) =>
+        isTop && (Math.abs(gesture.dx) > 5 || Math.abs(gesture.dy) > 5),
       onPanResponderMove: (_, gesture) => {
         position.setValue({ x: gesture.dx, y: gesture.dy });
       },
@@ -115,6 +118,12 @@ export default function SwipeCard({ profile, onLike, onPass, isTop }: Props) {
         <View style={styles.nameRow}>
           <Text style={styles.name}>{profile.name}, {profile.age}</Text>
           <View style={styles.onlineDot} />
+          <View style={{ flex: 1 }} />
+          {onInfo && (
+            <TouchableOpacity style={styles.infoBtn} onPress={onInfo}>
+              <Ionicons name="information-circle" size={28} color="rgba(255,255,255,0.9)" />
+            </TouchableOpacity>
+          )}
         </View>
         <View style={styles.locationRow}>
           <Ionicons name="location-outline" size={14} color="rgba(255,255,255,0.85)" />
@@ -229,6 +238,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 8,
     marginBottom: 4,
+  },
+  infoBtn: {
+    padding: 2,
   },
   name: {
     color: '#fff',
