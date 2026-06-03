@@ -65,8 +65,9 @@ export default function FilterSheet({ visible, filters, onApply, onClose }: Prop
       onRequestClose={onClose}
       onShow={open}
     >
-      <TouchableOpacity style={styles.backdrop} activeOpacity={1} onPress={onClose} />
-      <View style={styles.sheet}>
+      <View style={styles.container}>
+        <TouchableOpacity style={styles.backdrop} activeOpacity={1} onPress={onClose} />
+        <View style={styles.sheet}>
         <View style={styles.handle} />
         <View style={styles.header}>
           <Text style={styles.title}>Filtrai</Text>
@@ -122,6 +123,7 @@ export default function FilterSheet({ visible, filters, onApply, onClose }: Prop
           <Text style={styles.applyBtnText}>Taikyti filtrus</Text>
         </TouchableOpacity>
       </View>
+      </View>
     </Modal>
   );
 }
@@ -154,8 +156,12 @@ function StepControl({
 }
 
 const styles = StyleSheet.create({
-  backdrop: {
+  container: {
     flex: 1,
+    justifyContent: 'flex-end',
+  },
+  backdrop: {
+    ...StyleSheet.absoluteFillObject,
     backgroundColor: 'rgba(0,0,0,0.45)',
   },
   sheet: {

@@ -20,6 +20,7 @@ type Props = {
 export default function NotificationDrawer({ visible, notifications, onClose }: Props) {
   return (
     <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
+      <View style={styles.container}>
       <TouchableOpacity style={styles.backdrop} activeOpacity={1} onPress={onClose} />
       <View style={styles.sheet}>
         <View style={styles.handle} />
@@ -46,6 +47,7 @@ export default function NotificationDrawer({ visible, notifications, onClose }: 
             renderItem={({ item }) => <NotificationItem item={item} />}
           />
         )}
+      </View>
       </View>
     </Modal>
   );
@@ -76,8 +78,12 @@ function NotificationItem({ item }: { item: AppNotification }) {
 }
 
 const styles = StyleSheet.create({
-  backdrop: {
+  container: {
     flex: 1,
+    justifyContent: 'flex-end',
+  },
+  backdrop: {
+    ...StyleSheet.absoluteFillObject,
     backgroundColor: 'rgba(0,0,0,0.45)',
   },
   sheet: {
