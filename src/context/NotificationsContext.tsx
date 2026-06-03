@@ -21,13 +21,17 @@ type NotificationsContextType = {
 
 const NotificationsContext = createContext<NotificationsContextType | null>(null);
 
-ExpoNotifications.setNotificationHandler({
-  handleNotification: async () => ({
-    shouldShowAlert: true,
-    shouldPlaySound: true,
-    shouldSetBadge: true,
-  }),
-});
+try {
+  ExpoNotifications.setNotificationHandler({
+    handleNotification: async () => ({
+      shouldShowAlert: true,
+      shouldPlaySound: true,
+      shouldSetBadge: true,
+    }),
+  });
+} catch {
+  // native module unavailable (old APK / web)
+}
 
 export function NotificationsProvider({ children }: { children: React.ReactNode }) {
   const [notifications, setNotifications] = useState<AppNotification[]>([]);
