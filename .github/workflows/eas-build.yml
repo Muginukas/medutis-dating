@@ -1,12 +1,10 @@
 name: EAS Build APK
 
 on:
+  push:
+    branches:
+      - 'trigger/build-android'
   workflow_dispatch:
-    inputs:
-      message:
-        description: 'Build message'
-        required: false
-        default: 'Manual build'
 
 jobs:
   build:
