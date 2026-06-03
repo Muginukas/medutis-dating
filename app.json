@@ -22,6 +22,12 @@
       "bundler": "metro",
       "favicon": "./assets/favicon.png"
     },
+    "runtimeVersion": {
+      "policy": "sdkVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/5cc5c987-aa7f-4a77-bae1-e3e45bfb498d"
+    },
     "plugins": [
       "expo-router",
       "expo-image-picker",
