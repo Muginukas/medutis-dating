@@ -7,6 +7,7 @@ export type UserProfile = {
   age: number;
   bio: string;
   photos: string[];
+  blurredPhoto?: string;
   city: string;
   interests: string[];
   gender: 'male' | 'female' | 'other';
@@ -30,6 +31,7 @@ const DEMO_USER: UserProfile = {
   age: 27,
   bio: 'Mėgstu keliauti, gamtą ir gerą kavą ☕',
   photos: ['https://i.pravatar.cc/400?img=68'],
+  blurredPhoto: 'https://i.pravatar.cc/400?img=69',
   city: 'Vilnius',
   interests: ['Kelionės', 'Fotografija', 'Muzika', 'Sportas'],
   gender: 'male',

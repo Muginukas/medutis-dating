@@ -1,4 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
+import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import {
   Dimensions,
@@ -11,18 +12,22 @@ import {
   View,
 } from 'react-native';
 import { Profile } from '../data/mockProfiles';
+import { useUnlockedPhotos } from '../hooks/useUnlockedPhotos';
 
 const { width, height } = Dimensions.get('window');
 
 type Props = {
   profile: Profile | null;
+  matchId?: string;
   onClose: () => void;
   onLike: () => void;
   onPass: () => void;
 };
 
-export default function ProfileDetailModal({ profile, onClose, onLike, onPass }: Props) {
+export default function ProfileDetailModal({ profile, matchId, onClose, onLike, onPass }: Props) {
   const [photoIndex, setPhotoIndex] = useState(0);
+  const { isUnlocked, unlock } = useUnlockedPhotos();
+  const router = useRouter();
 
   if (!profile) return null;
 
@@ -118,6 +123,59 @@ export default function ProfileDetailModal({ profile, onClose, onLike, onPass }:
               ))}
             </View>
           </View>
+          {profile.blurredPhoto && (
+            <>
+              <View style={styles.divider} />
+              <View style={styles.section}>
+                <View style={styles.sectionHeader}>
+                  <Ionicons name="lock-closed-outline" size={16} color="#FF6B9D" />
+                  <Text style={styles.sectionTitle}>Slapta nuotrauka</Text>
+                </View>
+                <View style={styles.secretPhotoWrap}>
+                  <Image
+                    source={{ uri: profile.blurredPhoto }}
+                    style={styles.secretPhoto}
+                    blurRadius={isUnlocked(profile.id) ? 0 : 22}
+                  />
+                  {!isUnlocked(profile.id) && (
+                    <View style={styles.secretLockOverlay}>
+                      <View style={styles.lockCircle}>
+                        <Ionicons name="lock-closed" size={28} color="#fff" />
+                      </View>
+                      <Text style={styles.lockTitle}>Nuotrauka užrakinta</Text>
+                      <Text style={styles.lockSub}>Paprašyk atrakinti pokalbyje</Text>
+                      {matchId ? (
+                        <TouchableOpacity
+                          style={styles.unlockBtn}
+                          onPress={() => {
+                            onClose();
+                            router.push(`/chat/${matchId}` as any);
+                          }}
+                        >
+                          <Ionicons name="chatbubble-outline" size={16} color="#fff" />
+                          <Text style={styles.unlockBtnText}>Eiti į pokalbį</Text>
+                        </TouchableOpacity>
+                      ) : (
+                        <TouchableOpacity
+                          style={styles.unlockBtn}
+                          onPress={() => unlock(profile.id)}
+                        >
+                          <Ionicons name="lock-open-outline" size={16} color="#fff" />
+                          <Text style={styles.unlockBtnText}>Siųsti prašymą</Text>
+                        </TouchableOpacity>
+                      )}
+                    </View>
+                  )}
+                  {isUnlocked(profile.id) && (
+                    <View style={styles.unlockedBadge}>
+                      <Ionicons name="lock-open" size={12} color="#4CAF50" />
+                      <Text style={styles.unlockedBadgeText}>Atrakinta</Text>
+                    </View>
+                  )}
+                </View>
+              </View>
+            </>
+          )}
         </ScrollView>
 
         {/* Action buttons */}
@@ -298,6 +356,73 @@ const styles = StyleSheet.create({
     fontSize: 13,
     fontWeight: '600',
     color: '#FF6B9D',
+  },
+  secretPhotoWrap: {
+    borderRadius: 16,
+    overflow: 'hidden',
+    height: 200,
+  },
+  secretPhoto: {
+    width: '100%',
+    height: '100%',
+  },
+  secretLockOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(0,0,0,0.45)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+  },
+  lockCircle: {
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    backgroundColor: 'rgba(255,107,157,0.85)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 4,
+  },
+  lockTitle: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: '700',
+  },
+  lockSub: {
+    color: 'rgba(255,255,255,0.8)',
+    fontSize: 13,
+    marginBottom: 4,
+  },
+  unlockBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    backgroundColor: '#FF6B9D',
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    borderRadius: 22,
+    marginTop: 4,
+  },
+  unlockBtnText: {
+    color: '#fff',
+    fontWeight: '700',
+    fontSize: 14,
+  },
+  unlockedBadge: {
+    position: 'absolute',
+    top: 10,
+    right: 10,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    backgroundColor: 'rgba(255,255,255,0.9)',
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 12,
+  },
+  unlockedBadgeText: {
+    color: '#4CAF50',
+    fontWeight: '700',
+    fontSize: 12,
   },
   actions: {
     flexDirection: 'row',

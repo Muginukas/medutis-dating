@@ -27,6 +27,11 @@ export default function SwipeCard({ profile, onLike, onPass, onInfo, isTop }: Pr
   const position = useRef(new Animated.ValueXY()).current;
   const [photoIndex, setPhotoIndex] = useState(0);
 
+  const allPhotos = profile.blurredPhoto
+    ? [...profile.photos, profile.blurredPhoto]
+    : profile.photos;
+  const isBlurredSlot = profile.blurredPhoto ? photoIndex === allPhotos.length - 1 : false;
+
   const rotate = position.x.interpolate({
     inputRange: [-width, 0, width],
     outputRange: ['-25deg', '0deg', '25deg'],
@@ -81,7 +86,7 @@ export default function SwipeCard({ profile, onLike, onPass, onInfo, isTop }: Pr
     : {};
 
   const nextPhoto = () => {
-    if (photoIndex < profile.photos.length - 1) setPhotoIndex(photoIndex + 1);
+    if (photoIndex < allPhotos.length - 1) setPhotoIndex(photoIndex + 1);
   };
 
   const prevPhoto = () => {
@@ -90,11 +95,23 @@ export default function SwipeCard({ profile, onLike, onPass, onInfo, isTop }: Pr
 
   return (
     <Animated.View style={[styles.card, animatedStyle]} {...(isTop ? panResponder.panHandlers : {})}>
-      <Image source={{ uri: profile.photos[photoIndex] }} style={styles.photo} />
+      <Image
+        source={{ uri: allPhotos[photoIndex] }}
+        style={styles.photo}
+        blurRadius={isBlurredSlot ? 20 : 0}
+      />
+      {isBlurredSlot && (
+        <View style={styles.blurredOverlay}>
+          <View style={styles.blurredBadge}>
+            <Ionicons name="lock-closed" size={18} color="#fff" />
+            <Text style={styles.blurredBadgeText}>Slapta nuotrauka</Text>
+          </View>
+        </View>
+      )}
 
-      {profile.photos.length > 1 && (
+      {allPhotos.length > 1 && (
         <View style={styles.photoDots}>
-          {profile.photos.map((_, i) => (
+          {allPhotos.map((_, i) => (
             <View key={i} style={[styles.dot, i === photoIndex && styles.dotActive]} />
           ))}
         </View>
@@ -193,6 +210,29 @@ const styles = StyleSheet.create({
     top: 0,
     width: '60%',
     height: '100%',
+  },
+  blurredOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'rgba(0,0,0,0.15)',
+  },
+  blurredBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    backgroundColor: 'rgba(0,0,0,0.55)',
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    borderRadius: 24,
+    borderWidth: 1.5,
+    borderColor: 'rgba(255,255,255,0.3)',
+  },
+  blurredBadgeText: {
+    color: '#fff',
+    fontWeight: '700',
+    fontSize: 14,
+    letterSpacing: 0.3,
   },
   badge: {
     position: 'absolute',

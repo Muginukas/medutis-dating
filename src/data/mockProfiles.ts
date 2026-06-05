@@ -4,6 +4,7 @@ export type Profile = {
   age: number;
   bio: string;
   photos: string[];
+  blurredPhoto?: string;
   city: string;
   interests: string[];
   distance: number;
@@ -19,6 +20,7 @@ export const MOCK_PROFILES: Profile[] = [
       'https://i.pravatar.cc/600?img=47',
       'https://i.pravatar.cc/600?img=48',
     ],
+    blurredPhoto: 'https://i.pravatar.cc/600?img=49',
     city: 'Vilnius',
     interests: ['Knygos', 'Gamta', 'Kepimas', 'Jogos'],
     distance: 3,
@@ -32,6 +34,7 @@ export const MOCK_PROFILES: Profile[] = [
       'https://i.pravatar.cc/600?img=44',
       'https://i.pravatar.cc/600?img=45',
     ],
+    blurredPhoto: 'https://i.pravatar.cc/600?img=46',
     city: 'Kaunas',
     interests: ['Kelionės', 'Architektūra', 'Vinas', 'Filmai'],
     distance: 98,
@@ -45,6 +48,7 @@ export const MOCK_PROFILES: Profile[] = [
       'https://i.pravatar.cc/600?img=39',
       'https://i.pravatar.cc/600?img=40',
     ],
+    blurredPhoto: 'https://i.pravatar.cc/600?img=41',
     city: 'Klaipėda',
     interests: ['Šokiai', 'Muzika', 'Jūra', 'Sportas'],
     distance: 310,
@@ -58,6 +62,7 @@ export const MOCK_PROFILES: Profile[] = [
       'https://i.pravatar.cc/600?img=36',
       'https://i.pravatar.cc/600?img=37',
     ],
+    blurredPhoto: 'https://i.pravatar.cc/600?img=38',
     city: 'Vilnius',
     interests: ['Bėgimas', 'Medicina', 'Sveikata', 'Gamta'],
     distance: 7,
@@ -71,6 +76,7 @@ export const MOCK_PROFILES: Profile[] = [
       'https://i.pravatar.cc/600?img=32',
       'https://i.pravatar.cc/600?img=33',
     ],
+    blurredPhoto: 'https://i.pravatar.cc/600?img=34',
     city: 'Vilnius',
     interests: ['Fotografija', 'Menas', 'Kava', 'Muzika'],
     distance: 2,
@@ -84,6 +90,7 @@ export const MOCK_PROFILES: Profile[] = [
       'https://i.pravatar.cc/600?img=25',
       'https://i.pravatar.cc/600?img=26',
     ],
+    blurredPhoto: 'https://i.pravatar.cc/600?img=27',
     city: 'Šiauliai',
     interests: ['Technologijos', 'Maistas', 'Žygiai', 'Šunys'],
     distance: 214,
