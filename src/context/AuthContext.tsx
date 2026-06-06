@@ -12,6 +12,7 @@ export type UserProfile = {
   interests: string[];
   gender: 'male' | 'female' | 'other';
   lookingFor: 'male' | 'female' | 'both';
+  onboardingComplete?: boolean;
 };
 
 type AuthContextType = {
@@ -36,6 +37,7 @@ const DEMO_USER: UserProfile = {
   interests: ['Kelionės', 'Fotografija', 'Muzika', 'Sportas'],
   gender: 'male',
   lookingFor: 'female',
+  onboardingComplete: true,
 };
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
@@ -55,7 +57,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const register = async (_email: string, _password: string, name: string, age: number) => {
-    const newUser: UserProfile = { ...DEMO_USER, id: Date.now().toString(), name, age };
+    const newUser: UserProfile = { ...DEMO_USER, id: Date.now().toString(), name, age, onboardingComplete: false };
     await AsyncStorage.setItem('user', JSON.stringify(newUser));
     setUser(newUser);
   };

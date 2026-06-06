@@ -14,6 +14,7 @@ import {
   View,
 } from 'react-native';
 import { useAuth } from '../../src/context/AuthContext';
+import { MatchEntry, useMatches } from '../../src/context/MatchesContext';
 
 const { width } = Dimensions.get('window');
 const SLOT_SIZE = (width - 48 - 12) / 3;
@@ -42,6 +43,7 @@ function calcCompletion(user: ReturnType<typeof useAuth>['user']): number {
 
 export default function ProfileScreen() {
   const { user, logout, updateProfile } = useAuth();
+  const { matches, likeCount } = useMatches();
   const [editing, setEditing] = useState(false);
   const [bio, setBio] = useState(user?.bio ?? '');
   const [city, setCity] = useState(user?.city ?? '');
@@ -298,9 +300,9 @@ export default function ProfileScreen() {
 
         {/* Stats */}
         <View style={styles.statsRow}>
-          <StatCard value="42" label="Patikimai" icon="heart" />
-          <StatCard value="7" label="Sutapimai" icon="flame" />
-          <StatCard value="3" label="Pokalbiai" icon="chatbubble" />
+          <StatCard value={String(likeCount)} label="Patikimai" icon="heart" />
+          <StatCard value={String(matches.length)} label="Sutapimai" icon="flame" />
+          <StatCard value={String(matches.filter((m: MatchEntry) => m.messages.length > 0).length)} label="Pokalbiai" icon="chatbubble" />
         </View>
 
         {/* Logout */}

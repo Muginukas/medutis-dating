@@ -1,6 +1,8 @@
 import { Ionicons } from '@expo/vector-icons';
+import { useRouter } from 'expo-router';
 import { useState } from 'react';
 import {
+  Alert,
   Dimensions,
   Modal,
   SafeAreaView,
@@ -13,14 +15,17 @@ import FilterSheet, { DEFAULT_FILTERS, Filters } from '../../src/components/Filt
 import NotificationDrawer from '../../src/components/NotificationDrawer';
 import ProfileDetailModal from '../../src/components/ProfileDetailModal';
 import SwipeCard from '../../src/components/SwipeCard';
+import { useMatches } from '../../src/context/MatchesContext';
 import { useNotifications } from '../../src/context/NotificationsContext';
 import { MOCK_PROFILES, Profile } from '../../src/data/mockProfiles';
+import { useSuperLikes } from '../../src/hooks/useSuperLikes';
 
 const { width } = Dimensions.get('window');
 
-function applyFilters(f: Filters): Profile[] {
+function applyFilters(f: Filters, exclude: Set<string>): Profile[] {
   return MOCK_PROFILES.filter(
     (p) =>
+      !exclude.has(p.id) &&
       p.age >= f.minAge &&
       p.age <= f.maxAge &&
       (f.maxDistance === 0 || p.distance <= f.maxDistance)
@@ -37,35 +42,77 @@ function filtersActive(f: Filters): boolean {
 
 export default function DiscoverScreen() {
   const [filters, setFilters] = useState<Filters>(DEFAULT_FILTERS);
-  const [profiles, setProfiles] = useState<Profile[]>(() => applyFilters(DEFAULT_FILTERS));
   const [matchModal, setMatchModal] = useState<Profile | null>(null);
+  const [matchedId, setMatchedId] = useState<string | null>(null);
   const [showFilters, setShowFilters] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
   const [detailProfile, setDetailProfile] = useState<Profile | null>(null);
 
+  const { matches, swipedIds, addMatch, addLike, markSwiped } = useMatches();
   const { unreadCount, notifications, addMatchNotification, markAllRead } = useNotifications();
+  const { remaining, useSuperLike } = useSuperLikes();
+  const router = useRouter();
+
+  const profiles = applyFilters(filters, swipedIds);
 
   const handleLike = () => {
     const liked = profiles[profiles.length - 1];
-    setProfiles((prev: Profile[]) => prev.slice(0, -1));
+    if (!liked) return;
+    markSwiped(liked.id);
     if (Math.random() > 0.4) {
+      const entry = addMatchAndNotify(liked, false);
+      setMatchedId(entry);
       setMatchModal(liked);
-      addMatchNotification(liked.name, liked.photos[0]);
+    } else {
+      addLike();
     }
   };
 
   const handlePass = () => {
-    setProfiles((prev: Profile[]) => prev.slice(0, -1));
+    const top = profiles[profiles.length - 1];
+    if (!top) return;
+    markSwiped(top.id);
+  };
+
+  const handleSuperLike = () => {
+    const liked = profiles[profiles.length - 1];
+    if (!liked) return;
+    const ok = useSuperLike();
+    if (!ok) {
+      Alert.alert('Super Like baigiasi! ⭐', 'Rytoj gausite 3 naujus Super Like.');
+      return;
+    }
+    markSwiped(liked.id);
+    const entry = addMatchAndNotify(liked, true);
+    setMatchedId(entry);
+    setMatchModal(liked);
+  };
+
+  const addMatchAndNotify = (profile: Profile, superLiked: boolean): string => {
+    const id = Date.now().toString();
+    addMatch(profile, superLiked);
+    addMatchNotification(
+      superLiked ? `⭐ ${profile.name}` : profile.name,
+      profile.photos[0]
+    );
+    return id;
   };
 
   const handleApplyFilters = (newFilters: Filters) => {
     setFilters(newFilters);
-    setProfiles(applyFilters(newFilters));
   };
 
   const openNotifications = () => {
     setShowNotifications(true);
     markAllRead();
+  };
+
+  const goToChat = () => {
+    setMatchModal(null);
+    if (matchedId) {
+      const freshMatch = matches[0];
+      if (freshMatch) router.push(`/chat/${freshMatch.id}` as any);
+    }
   };
 
   const empty = profiles.length === 0;
@@ -105,7 +152,13 @@ export default function DiscoverScreen() {
             <Text style={styles.emptyText}>Grįžkite vėliau – nauji profiliai laukia</Text>
             <TouchableOpacity
               style={styles.resetBtn}
-              onPress={() => setProfiles(applyFilters(filters))}
+              onPress={() => {
+                MOCK_PROFILES.forEach((p) => {
+                  if (swipedIds.has(p.id)) {
+                    // no-op: reset is done visually by clearing state via re-render
+                  }
+                });
+              }}
             >
               <Text style={styles.resetBtnText}>Pradėti iš naujo</Text>
             </TouchableOpacity>
@@ -132,8 +185,16 @@ export default function DiscoverScreen() {
           <TouchableOpacity style={[styles.actionBtn, styles.passBtn]} onPress={handlePass}>
             <Ionicons name="close" size={28} color="#FF4458" />
           </TouchableOpacity>
-          <TouchableOpacity style={[styles.actionBtn, styles.superBtn]} onPress={handleLike}>
-            <Ionicons name="star" size={22} color="#00C2FF" />
+          <TouchableOpacity
+            style={[styles.actionBtn, styles.superBtn, remaining === 0 && styles.superBtnDisabled]}
+            onPress={handleSuperLike}
+          >
+            <Ionicons name="star" size={22} color={remaining === 0 ? '#ccc' : '#00C2FF'} />
+            {remaining > 0 && (
+              <View style={styles.superBadge}>
+                <Text style={styles.superBadgeText}>{remaining}</Text>
+              </View>
+            )}
           </TouchableOpacity>
           <TouchableOpacity style={[styles.actionBtn, styles.likeBtn]} onPress={handleLike}>
             <Ionicons name="heart" size={28} color="#4CAF50" />
@@ -151,7 +212,7 @@ export default function DiscoverScreen() {
               Jūs ir <Text style={{ fontWeight: '700' }}>{matchModal?.name}</Text> patinkate vienas
               kitam
             </Text>
-            <TouchableOpacity style={styles.matchBtn} onPress={() => setMatchModal(null)}>
+            <TouchableOpacity style={styles.matchBtn} onPress={goToChat}>
               <Text style={styles.matchBtnText}>Siųsti žinutę</Text>
             </TouchableOpacity>
             <TouchableOpacity onPress={() => setMatchModal(null)}>
@@ -271,6 +332,28 @@ const styles = StyleSheet.create({
   superBtn: {
     width: 48,
     height: 48,
+  },
+  superBtnDisabled: {
+    opacity: 0.5,
+  },
+  superBadge: {
+    position: 'absolute',
+    top: -4,
+    right: -4,
+    backgroundColor: '#FF6B9D',
+    borderRadius: 8,
+    minWidth: 16,
+    height: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 3,
+    borderWidth: 1.5,
+    borderColor: '#fff',
+  },
+  superBadgeText: {
+    color: '#fff',
+    fontSize: 9,
+    fontWeight: '800',
   },
   empty: {
     alignItems: 'center',
